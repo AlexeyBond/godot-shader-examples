@@ -1,0 +1,118 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://02-metaball/ball.material" type="Material" id=1]
+[ext_resource path="res://02-metaball/effect.gdshader" type="Shader" id=2]
+
+[sub_resource type="Curve" id=1]
+_data = [ Vector2( 0, 0.663076 ), 0.0, 0.0, 0, 0, Vector2( 0.386139, 0.717621 ), 0.0, 0.0, 0, 0, Vector2( 0.732673, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="Animation" id=4]
+resource_name = "1"
+length = 2.0
+loop = true
+tracks/0/type = "bezier"
+tracks/0/path = NodePath("ball3:rect_position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"points": PoolRealArray( 138, -0.25, 0, 0.25, 0, 180, -0.25, 0, 0.25, 0, 138, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0, 1, 2 )
+}
+tracks/1/type = "bezier"
+tracks/1/path = NodePath("ball3:rect_position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"points": PoolRealArray( 76, -0.25, 0, 0.25, 0, 74, -0.25, 0, 0.25, 0, 76, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0, 1, 2 )
+}
+
+[sub_resource type="Animation" id=5]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/path = NodePath("ball3:rect_position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"points": PoolRealArray( 180, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0 )
+}
+tracks/1/type = "bezier"
+tracks/1/path = NodePath("ball3:rect_position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"points": PoolRealArray( 81, -0.25, 0, 0.25, 0 ),
+"times": PoolRealArray( 0 )
+}
+
+[sub_resource type="ShaderMaterial" id=3]
+shader = ExtResource( 2 )
+
+[node name="Node2D" type="Node2D"]
+
+[node name="scene" type="Node2D" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="scene"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 800.0
+margin_bottom = 600.0
+color = Color( 0, 0, 0, 1 )
+
+[node name="ball1" type="ColorRect" parent="scene"]
+material = ExtResource( 1 )
+margin_left = 99.0
+margin_top = 75.0
+margin_right = 179.0
+margin_bottom = 155.0
+
+[node name="ball3" type="ColorRect" parent="scene"]
+material = ExtResource( 1 )
+margin_left = 180.0
+margin_top = 81.0
+margin_right = 260.002
+margin_bottom = 161.001
+
+[node name="ball2" type="ColorRect" parent="scene"]
+visible = false
+material = ExtResource( 1 )
+margin_left = 460.0
+margin_top = 214.0
+margin_right = 540.0
+margin_bottom = 294.0
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="scene/ball2"]
+material = ExtResource( 1 )
+position = Vector2( 40, 40 )
+amount = 100
+lifetime = 3.0
+explosiveness = 0.66
+lifetime_randomness = 0.59
+spread = 180.0
+gravity = Vector2( 0, 0 )
+initial_velocity = 45.87
+scale_amount = 30.0
+scale_amount_random = 0.62
+scale_amount_curve = SubResource( 1 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="scene"]
+autoplay = "1"
+anims/1 = SubResource( 4 )
+anims/RESET = SubResource( 5 )
+
+[node name="effect" type="Node2D" parent="."]
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="effect"]
+material = SubResource( 3 )
+margin_right = 800.0
+margin_bottom = 600.0
