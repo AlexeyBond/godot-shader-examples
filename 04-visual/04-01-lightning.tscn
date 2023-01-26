@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://04-visual/04-01-lightning.material" type="Material" id=1]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = ExtResource( 1 )
+margin_right = 210.0
+margin_bottom = 40.0
+rect_rotation = 0.275466

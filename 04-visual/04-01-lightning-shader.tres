@@ -1,0 +1,306 @@
+[gd_resource type="VisualShader" load_steps=17 format=2]
+
+[ext_resource path="res://addons/visual_shader_node_library/shader_nodes/common/noise/perlin_2d.gd" type="Script" id=1]
+
+[sub_resource type="VisualShaderNodeScalarOp" id=1]
+output_port_for_preview = 0
+operator = 9
+
+[sub_resource type="VisualShaderNodeVectorInterp" id=2]
+
+[sub_resource type="VisualShaderNodeColorConstant" id=3]
+constant = Color( 0, 0, 0, 1 )
+
+[sub_resource type="VisualShaderNodeColorConstant" id=4]
+constant = Color( 1, 1, 1, 0 )
+
+[sub_resource type="VisualShaderNodeScalarInterp" id=5]
+
+[sub_resource type="VisualShaderNodeScalarOp" id=6]
+default_input_values = [ 0, 0.0, 1, 0.5 ]
+operator = 2
+
+[sub_resource type="VisualShaderNodeExpression" id=9]
+size = Vector2( 572, 430.8 )
+expression = "noise_off.x = time * -0.1 + uv.x;
+noise_off.y = time;
+
+dst = abs(uv.y - 0.5 + (noise - 0.5) * 0.5 * size.x) * 2.0 / size.x;"
+
+[sub_resource type="Curve" id=15]
+_data = [ Vector2( 0, 0 ), 0.0, 0.0, 0, 0, Vector2( 0.169643, 1 ), 0.0, 0.0, 0, 0, Vector2( 0.491071, 1 ), 0.0, 0.0, 0, 0, Vector2( 0.767857, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=16]
+curve = SubResource( 15 )
+
+[sub_resource type="VisualShaderNodeTexture" id=17]
+output_port_for_preview = 0
+texture = SubResource( 16 )
+
+[sub_resource type="VisualShaderNodeCustom" id=18]
+output_port_for_preview = 0
+default_input_values = [ 2, Vector3( 10, 0.99, 1 ) ]
+initialized = true
+script = ExtResource( 1 )
+
+[sub_resource type="VisualShaderNodeExpression" id=19]
+size = Vector2( 503.44, 207.6 )
+expression = "res.x = uv.x + time * -0.5;
+res.y = time;"
+
+[sub_resource type="VisualShaderNodeInput" id=10]
+output_port_for_preview = 0
+input_name = "uv"
+
+[sub_resource type="VisualShaderNodeCustom" id=11]
+output_port_for_preview = 0
+default_input_values = [ 2, Vector3( 10, 2, 10 ) ]
+initialized = true
+script = ExtResource( 1 )
+
+[sub_resource type="VisualShaderNodeInput" id=14]
+input_name = "time"
+
+[resource]
+code = "shader_type canvas_item;
+uniform sampler2D tex_frg_19;
+
+
+// PerlinNoise2D
+
+
+// GLSL textureless classic 2D noise \\\"cnoise\\\",
+// with an RSL-style periodic variant \\\"pnoise\\\".
+// Author:  Stefan Gustavson (stefan.gustavson@liu.se)
+// Version: 2011-08-22
+//
+// Many thanks to Ian McEwan of Ashima Arts for the
+// ideas for permutation and gradient selection.
+//
+// Copyright (c) 2011 Stefan Gustavson. All rights reserved.
+// Distributed under the MIT license. See LICENSE file.
+// https://github.com/stegu/webgl-noise
+//
+
+vec4 HELPER_PerlinNoise2D_mod289(vec4 x) {
+    return x - floor(x * (1.0 / 289.0)) * 289.0;
+}
+
+vec4 HELPER_PerlinNoise2D_permute(vec4 x) {
+    return HELPER_PerlinNoise2D_mod289(((x * 34.0) + 1.0) * x);
+}
+
+vec4 HELPER_PerlinNoise2D_taylorInvSqrt(vec4 r) {
+    return 1.79284291400159 - 0.85373472095314 * r;
+}
+
+vec2 HELPER_PerlinNoise2D_fade(vec2 t) {
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+}
+
+// Classic Perlin noise
+float perlin_noise_2d_np(vec2 P) {
+    vec4 Pi = floor(vec4(P, P)) + vec4(0.0, 0.0, 1.0, 1.0);
+    vec4 Pf = fract(vec4(P, P)) - vec4(0.0, 0.0, 1.0, 1.0);
+    Pi = HELPER_PerlinNoise2D_mod289(Pi); // To avoid truncation effects in permutation
+    vec4 ix = Pi.xzxz;
+    vec4 iy = Pi.yyww;
+    vec4 fx = Pf.xzxz;
+    vec4 fy = Pf.yyww;
+
+    vec4 i = HELPER_PerlinNoise2D_permute(HELPER_PerlinNoise2D_permute(ix) + iy);
+
+    vec4 gx = fract(i * (1.0 / 41.0)) * 2.0 - 1.0 ;
+    vec4 gy = abs(gx) - 0.5 ;
+    vec4 tx = floor(gx + 0.5);
+    gx = gx - tx;
+
+    vec2 g00 = vec2(gx.x,gy.x);
+    vec2 g10 = vec2(gx.y,gy.y);
+    vec2 g01 = vec2(gx.z,gy.z);
+    vec2 g11 = vec2(gx.w,gy.w);
+    
+    vec4 norm = HELPER_PerlinNoise2D_taylorInvSqrt(vec4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11)));
+    g00 *= norm.x;
+    g01 *= norm.y;
+    g10 *= norm.z;
+    g11 *= norm.w;
+    
+    float n00 = dot(g00, vec2(fx.x, fy.x));
+    float n10 = dot(g10, vec2(fx.y, fy.y));
+    float n01 = dot(g01, vec2(fx.z, fy.z));
+    float n11 = dot(g11, vec2(fx.w, fy.w));
+    
+    vec2 fade_xy = HELPER_PerlinNoise2D_fade(Pf.xy);
+    vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
+    float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
+    return 1.15 * n_xy + 0.5;
+}
+
+// Classic Perlin noise, periodic variant
+float perlin_noise_2d_p(vec2 P, vec2 rep) {
+    vec4 Pi = floor(vec4(P, P)) + vec4(0.0, 0.0, 1.0, 1.0);
+    vec4 Pf = fract(vec4(P, P)) - vec4(0.0, 0.0, 1.0, 1.0);
+    Pi = mod(Pi, vec4(rep, rep)); // To create noise with explicit period
+    Pi = HELPER_PerlinNoise2D_mod289(Pi); // To avoid truncation effects in permutation
+    vec4 ix = Pi.xzxz;
+    vec4 iy = Pi.yyww;
+    vec4 fx = Pf.xzxz;
+    vec4 fy = Pf.yyww;
+    
+    vec4 i = HELPER_PerlinNoise2D_permute(HELPER_PerlinNoise2D_permute(ix) + iy);
+    
+    vec4 gx = fract(i * (1.0 / 41.0)) * 2.0 - 1.0 ;
+    vec4 gy = abs(gx) - 0.5 ;
+    vec4 tx = floor(gx + 0.5);
+    gx = gx - tx;
+    
+    vec2 g00 = vec2(gx.x,gy.x);
+    vec2 g10 = vec2(gx.y,gy.y);
+    vec2 g01 = vec2(gx.z,gy.z);
+    vec2 g11 = vec2(gx.w,gy.w);
+    
+    vec4 norm = HELPER_PerlinNoise2D_taylorInvSqrt(vec4(dot(g00, g00), dot(g01, g01), dot(g10, g10), dot(g11, g11)));
+    g00 *= norm.x;
+    g01 *= norm.y;
+    g10 *= norm.z;
+    g11 *= norm.w;
+
+    float n00 = dot(g00, vec2(fx.x, fy.x));
+    float n10 = dot(g10, vec2(fx.y, fy.y));
+    float n01 = dot(g01, vec2(fx.z, fy.z));
+    float n11 = dot(g11, vec2(fx.w, fy.w));
+    
+    vec2 fade_xy = HELPER_PerlinNoise2D_fade(Pf.xy);
+    vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
+    float n_xy = mix(n_x.x, n_x.y, fade_xy.y);
+    return 1.15 * n_xy + 0.5;
+}
+
+
+void vertex() {
+// Output:0
+
+}
+
+void fragment() {
+// Color:12
+	vec3 n_out12p0 = vec3(0.000000, 0.000000, 0.000000);
+	float n_out12p1 = 1.000000;
+
+// Color:13
+	vec3 n_out13p0 = vec3(1.000000, 1.000000, 1.000000);
+	float n_out13p1 = 0.000000;
+
+// Input:7
+	float n_out7p0 = TIME;
+
+// Input:3
+	vec3 n_out3p0 = vec3(UV, 0.0);
+
+// Texture:19
+	vec4 tex_frg_19_read = texture(tex_frg_19, n_out3p0.xy);
+	vec3 n_out19p0 = tex_frg_19_read.rgb;
+	float n_out19p1 = tex_frg_19_read.a;
+
+// Expression:21
+	vec3 n_out21p0;
+	n_out21p0 = vec3(0.0, 0.0, 0.0);
+	{
+		n_out21p0.x = n_out3p0.x + n_out7p0 * -0.5;
+		n_out21p0.y = n_out7p0;
+	}
+
+// PerlinNoise2D:20
+	vec3 n_in20p2 = vec3(10.00000, 0.99000, 1.00000);
+	float n_out20p0;
+	{
+		n_out20p0 = perlin_noise_2d_np(((n_out21p0).xy).xy * (n_in20p2).xy.xy);
+	}
+
+// Expression:18
+	vec3 n_out18p0;
+	float n_out18p1;
+	n_out18p0 = vec3(0.0, 0.0, 0.0);
+	n_out18p1 = 0.0;
+	{
+		n_out18p0.x = n_out7p0 * -0.1 + n_out3p0.x;
+		n_out18p0.y = n_out7p0;
+		
+		n_out18p1 = abs(n_out3p0.y - 0.5 + (n_out20p0 - 0.5) * 0.5 * n_out19p0.x) * 2.0 / n_out19p0.x;
+	}
+
+// PerlinNoise2D:4
+	vec3 n_in4p2 = vec3(10.00000, 2.00000, 10.00000);
+	float n_out4p0;
+	{
+		n_out4p0 = perlin_noise_2d_np(((n_out18p0).xy).xy * (n_in4p2).xy.xy);
+	}
+
+// ScalarOp:15
+	float n_in15p1 = 0.50000;
+	float n_out15p0 = n_out4p0 * n_in15p1;
+
+// ScalarOp:10
+	float n_out10p0 = step(n_out15p0, n_out18p1);
+
+// VectorMix:11
+	vec3 n_out11p0 = mix(n_out12p0, n_out13p0, vec3(n_out10p0));
+
+// ScalarMix:14
+	float n_out14p0 = mix(n_out12p1, n_out13p1, n_out10p0);
+
+// Output:0
+	COLOR.rgb = n_out11p0;
+	COLOR.a = n_out14p0;
+
+}
+
+void light() {
+// Output:0
+
+}
+"
+graph_offset = Vector2( -1124.06, -306.77 )
+mode = 1
+flags/light_only = false
+nodes/fragment/0/position = Vector2( 1340, -80 )
+nodes/fragment/3/node = SubResource( 10 )
+nodes/fragment/3/position = Vector2( -1640, -40 )
+nodes/fragment/4/node = SubResource( 11 )
+nodes/fragment/4/position = Vector2( 360, -80 )
+nodes/fragment/7/node = SubResource( 14 )
+nodes/fragment/7/position = Vector2( -1680, -140 )
+nodes/fragment/10/node = SubResource( 1 )
+nodes/fragment/10/position = Vector2( 760, 20 )
+nodes/fragment/11/node = SubResource( 2 )
+nodes/fragment/11/position = Vector2( 1160, -200 )
+nodes/fragment/12/node = SubResource( 3 )
+nodes/fragment/12/position = Vector2( 940, -160 )
+nodes/fragment/13/node = SubResource( 4 )
+nodes/fragment/13/position = Vector2( 988.691, -41.6613 )
+nodes/fragment/14/node = SubResource( 5 )
+nodes/fragment/14/position = Vector2( 1140, -80 )
+nodes/fragment/15/node = SubResource( 6 )
+nodes/fragment/15/position = Vector2( 560, -80 )
+nodes/fragment/18/node = SubResource( 9 )
+nodes/fragment/18/position = Vector2( -540, 40 )
+nodes/fragment/18/size = Vector2( 572, 430.8 )
+nodes/fragment/18/input_ports = "0,0,time;1,1,uv;2,1,size;3,0,noise;"
+nodes/fragment/18/output_ports = "0,1,noise_off;1,0,dst;"
+nodes/fragment/18/expression = "noise_off.x = time * -0.1 + uv.x;
+noise_off.y = time;
+
+dst = abs(uv.y - 0.5 + (noise - 0.5) * 0.5 * size.x) * 2.0 / size.x;"
+nodes/fragment/19/node = SubResource( 17 )
+nodes/fragment/19/position = Vector2( -860, 160 )
+nodes/fragment/20/node = SubResource( 18 )
+nodes/fragment/20/position = Vector2( -880, -340 )
+nodes/fragment/21/node = SubResource( 19 )
+nodes/fragment/21/position = Vector2( -1440, -340 )
+nodes/fragment/21/size = Vector2( 503.44, 207.6 )
+nodes/fragment/21/input_ports = "0,1,uv;1,0,time;"
+nodes/fragment/21/output_ports = "0,1,res;"
+nodes/fragment/21/expression = "res.x = uv.x + time * -0.5;
+res.y = time;"
+nodes/fragment/connections = PoolIntArray( 10, 0, 11, 2, 11, 0, 0, 0, 12, 0, 11, 0, 13, 0, 11, 1, 14, 0, 0, 1, 13, 1, 14, 1, 12, 1, 14, 0, 10, 0, 14, 2, 4, 0, 15, 0, 15, 0, 10, 0, 7, 0, 18, 0, 3, 0, 18, 1, 18, 0, 4, 0, 18, 1, 10, 1, 3, 0, 19, 0, 19, 0, 18, 2, 21, 0, 20, 0, 3, 0, 21, 0, 7, 0, 21, 1, 20, 0, 18, 3 )

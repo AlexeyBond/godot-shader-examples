@@ -7,7 +7,7 @@ void fragment() {
 	vec4 sample = texture(SCREEN_TEXTURE, SCREEN_UV);
 	
 	COLOR = vec4(1.0);
-	
+
 	vec2 random = vec2(sin(TIME*123456.78), cos(TIME*123456.78));
 
 	// Фон

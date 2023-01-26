@@ -53,7 +53,7 @@ margin_left = 323.0
 margin_top = 53.0
 margin_right = 387.0
 margin_bottom = 117.0
-rect_rotation = 118.66
+rect_rotation = 48.1813
 rect_pivot_offset = Vector2( 32, 300 )
 texture = SubResource( 2 )
 

@@ -5,7 +5,7 @@ void fragment() {
 	
 	//coord.x += 0.01 * cos(TIME * 5.0 + coord.y * 20.0);
 
-	//coord = coord - mod(coord, SCREEN_PIXEL_SIZE * 10.0);
+	coord = coord - mod(coord, SCREEN_PIXEL_SIZE * 10.0);
 	
 	COLOR = texture(SCREEN_TEXTURE, coord);
 }

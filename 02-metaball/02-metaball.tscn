@@ -83,7 +83,6 @@ margin_right = 260.002
 margin_bottom = 161.001
 
 [node name="ball2" type="ColorRect" parent="scene"]
-visible = false
 material = ExtResource( 1 )
 margin_left = 460.0
 margin_top = 214.0
@@ -110,9 +109,9 @@ anims/1 = SubResource( 4 )
 anims/RESET = SubResource( 5 )
 
 [node name="effect" type="Node2D" parent="."]
-visible = false
 
 [node name="ColorRect" type="ColorRect" parent="effect"]
 material = SubResource( 3 )
+margin_top = 1.0
 margin_right = 800.0
-margin_bottom = 600.0
+margin_bottom = 601.0

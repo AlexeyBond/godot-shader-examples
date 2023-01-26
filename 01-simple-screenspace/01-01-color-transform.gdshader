@@ -7,7 +7,7 @@ void fragment() {
 
 	float i = (COLOR.r + COLOR.g + COLOR.b) / 3.0;
 
-	//COLOR.rgb = vec3(i);
+	COLOR.rgb = vec3(i);
 
-	//COLOR = mix(vec4(0,0,0,1), base, i);
+	COLOR = mix(vec4(0,0,0,1), base, i);
 }

@@ -42,8 +42,10 @@ margin_bottom = 600.0
 [node name="01-02-coordinate-transform" type="ColorRect" parent="effect"]
 visible = false
 material = SubResource( 3 )
-margin_right = 800.0
-margin_bottom = 600.0
+margin_left = 179.0
+margin_top = 240.0
+margin_right = 396.0
+margin_bottom = 388.0
 
 [node name="01-03-more-textures" type="ColorRect" parent="effect"]
 material = SubResource( 4 )
